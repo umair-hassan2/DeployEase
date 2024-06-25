@@ -18,13 +18,12 @@ const cors_1 = __importDefault(require("cors"));
 const simple_git_1 = __importDefault(require("simple-git"));
 const path_1 = __importDefault(require("path"));
 const helpers_1 = require("./helpers");
+const objectStore_1 = require("./objectStore");
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-const arr = (0, helpers_1.getAllDirFiles)(path_1.default.join(__dirname, "projects/3vsecmzzt8vnur1"));
-arr.forEach(name => console.log(name));
 app.get("/", (req, res) => {
     res.json({ "message": "server is running" });
 });
@@ -34,6 +33,12 @@ app.post('/upload', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         console.log(projectUrl);
         const randomId = (0, helpers_1.randomIdGenerator)(15);
         yield (0, simple_git_1.default)().clone(projectUrl, path_1.default.join(__dirname, `projects/${randomId}`));
+        const allFiles = (0, helpers_1.getAllDirFiles)(path_1.default.join(__dirname, `projects/${randomId}`));
+        // upload each file to object store
+        allFiles.forEach(file => {
+            //console.log(file)
+            (0, objectStore_1.uploadFile)(file.slice(__dirname.length + 1), file);
+        });
         res.json((0, helpers_1.generateMessage)("cloned sucessfuly", [randomId]));
     }
     catch (error) {

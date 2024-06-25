@@ -24,11 +24,27 @@ export const getAllDirFiles = (absolutePath: string) => {
       if(fs.statSync(fullPath).isDirectory()){
         ans = ans.concat(getAllDirFiles(fullPath));
       }else{
-        ans.push(fullPath);
+
+        // fixPath is used only to fix path delimeter on windows
+        ans.push(fixPath(fullPath));
       }
   })
 
   return ans;
+}
+
+export const fixPath = (filePath:string)=>{
+  let newPath = "";
+
+  for(let i = 0;i < filePath.length;i++){
+    if(filePath[i] === path.sep && path.sep === '\\'){
+      newPath += '/';
+    }else{
+      newPath += filePath[i];
+    }
+  }
+
+  return newPath;
 }
 
 export function generateMessage(message: string , payload:any[] = []){

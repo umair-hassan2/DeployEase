@@ -4,6 +4,7 @@ import cors from "cors"
 import simpleGit from "simple-git";
 import path from "path"
 import { generateMessage, getAllDirFiles, randomIdGenerator } from "./helpers";
+import { uploadFile } from "./objectStore";
 
 const app = express();
 dotenv.config();
@@ -26,6 +27,14 @@ app.post('/upload' , async (req , res) => {
         const randomId = randomIdGenerator(15);
         await simpleGit().clone(projectUrl , path.join(__dirname,`projects/${randomId}`));
 
+        const allFiles = getAllDirFiles(path.join(__dirname,`projects/${randomId}`));
+        
+        // upload each file to object store
+        allFiles.forEach(file=>{
+            //console.log(file)
+            uploadFile(file.slice(__dirname.length + 1),file)
+        })
+        
         res.json(generateMessage("cloned sucessfuly" , [randomId]));
         
     }catch(error){

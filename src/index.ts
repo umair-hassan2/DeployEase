@@ -5,6 +5,7 @@ import simpleGit from "simple-git";
 import path from "path"
 import { generateMessage, getAllDirFiles, randomIdGenerator } from "./helpers";
 import { uploadFile } from "./objectStore";
+import { connectTOMessageBroker, sendMessage } from "./messageBroker";
 
 const app = express();
 dotenv.config();
@@ -34,7 +35,12 @@ app.post('/upload' , async (req , res) => {
             //console.log(file)
             uploadFile(file.slice(__dirname.length + 1),file)
         })
-        
+        const connection = await connectTOMessageBroker();
+        if(connection){
+            sendMessage(`${randomId}` , connection);
+        }else{
+            console.log("Rabbit MQ connection failed");
+        }
         res.json(generateMessage("cloned sucessfuly" , [randomId]));
         
     }catch(error){

@@ -19,6 +19,7 @@ const simple_git_1 = __importDefault(require("simple-git"));
 const path_1 = __importDefault(require("path"));
 const helpers_1 = require("./helpers");
 const objectStore_1 = require("./objectStore");
+const messageBroker_1 = require("./messageBroker");
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 const PORT = process.env.PORT || 3000;
@@ -39,6 +40,13 @@ app.post('/upload', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             //console.log(file)
             (0, objectStore_1.uploadFile)(file.slice(__dirname.length + 1), file);
         });
+        const connection = yield (0, messageBroker_1.connectTOMessageBroker)();
+        if (connection) {
+            (0, messageBroker_1.sendMessage)(`${randomId}`, connection);
+        }
+        else {
+            console.log("Rabbit MQ connection failed");
+        }
         res.json((0, helpers_1.generateMessage)("cloned sucessfuly", [randomId]));
     }
     catch (error) {

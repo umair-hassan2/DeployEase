@@ -32,15 +32,16 @@ app.post('/upload' , async (req , res) => {
         
         // upload each file to object store
         allFiles.forEach(file=>{
-            //console.log(file)
+            console.log(file)
             uploadFile(file.slice(__dirname.length + 1),file)
         })
-        const connection = await connectTOMessageBroker();
-        if(connection){
-            sendMessage(`${randomId}` , connection);
-        }else{
-            console.log("Rabbit MQ connection failed");
-        }
+
+        // const connection = await connectTOMessageBroker();
+        // if(connection){
+        //     sendMessage(`${randomId}` , connection);
+        // }else{
+        //     console.log("Rabbit MQ connection failed");
+        // }
         res.json(generateMessage("cloned sucessfuly" , [randomId]));
         
     }catch(error){

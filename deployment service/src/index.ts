@@ -39,7 +39,7 @@ async function main(){
     
 }
 
-// just for testing and dev purposes... will clean it later
+// just for testing and dev purposes...
 async function testBuilds(){
     let projectId = "5f093efo4owg4fk";
     let OK = await buildProject(projectId);

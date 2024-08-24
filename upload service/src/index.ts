@@ -3,20 +3,20 @@ import dotenv from "dotenv"
 import cors from "cors"
 import simpleGit from "simple-git";
 import path from "path"
-import { generateMessage, getAllDirFiles, randomIdGenerator } from "./helpers";
+import delay, { generateMessage, getAllDirFiles, randomIdGenerator } from "./helpers";
 import { uploadFile } from "./objectStore";
 import { connectTOMessageBroker, sendMessage } from "./messageBroker";
 
 const app = express();
 dotenv.config();
-
+console.log(process.env.PORT);
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json())
 app.use(cors())
 
 app.get("/" , (req , res)=>{
-    res.json({"message" :"server is running"})
+    res.json({"message" :`server is running on PORT = ${PORT}`});
 });
 
 
@@ -36,13 +36,16 @@ app.post('/upload' , async (req , res) => {
             uploadFile(file.slice(__dirname.length + 1),file)
         })
 
-        // const connection = await connectTOMessageBroker();
-        // if(connection){
-        //     sendMessage(`${randomId}` , connection);
-        // }else{
-        //     console.log("Rabbit MQ connection failed");
-        // }
-        res.json(generateMessage("cloned sucessfuly" , [randomId]));
+        const connection = await connectTOMessageBroker();
+
+        // add dummy delay without blocking server
+        await delay(2000);
+        if(connection){
+            sendMessage(`${randomId}` , connection);
+        }else{
+            console.log("Rabbit MQ connection failed");
+        }
+        res.json(generateMessage("uploaded sucessfuly" , [randomId]));
         
     }catch(error){
         console.log(`ERROR : ${error}`);
@@ -50,6 +53,6 @@ app.post('/upload' , async (req , res) => {
     }
 });
 
-app.listen(3000 , ()=>{
-    console.log("Server is running on port 3000");
+app.listen(PORT , ()=>{
+    console.log(`Server is running on PORT = ${PORT}`);
 })

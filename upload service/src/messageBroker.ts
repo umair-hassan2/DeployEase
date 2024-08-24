@@ -1,9 +1,15 @@
 import rabbitmq from "amqplib"
+import dotenv from "dotenv"
 
+dotenv.config();
+let brokerUrl = process.env.MESSAGE_BROKER_URL || "amqp://localhost:5672"
+/*
+local url -> ""
+*/
 export const connectTOMessageBroker = async ()=>{
     console.log("starting broker connection...!");
     try{
-        const connection = await rabbitmq.connect("amqp://localhost:5672");
+        const connection = await rabbitmq.connect(brokerUrl);
         return connection;
     }catch(error){
         console.log(error);

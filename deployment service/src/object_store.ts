@@ -12,11 +12,22 @@ const s3 = new S3({
 
 export const downloadFiles = async(folderPath:string)=>{
     const allFiles = await s3.listObjectsV2({
-        Bucket:"deployment-ease",
+        Bucket:process.env.BUCKET_NAME as string,
         Prefix:folderPath
     }).promise();
 
-    console.log("see to it please");
+    if(allFiles.Contents === undefined){
+        return;
+    }
+
+    console.log("control here with total files as " + allFiles.Contents.length);
+    console.log(allFiles.IsTruncated);
+
+    let totalFiles = allFiles.Contents?.length;
+    let loadedFiles = 0;
+
+    // now load the content of all those remote files
+    // and create a replica directory on local server
     const allPromises = allFiles.Contents?.map(async({Key})=>{
         return new Promise((resolve)=>{
             if(!Key){
@@ -33,10 +44,13 @@ export const downloadFiles = async(folderPath:string)=>{
             }
 
             s3.getObject({
-                Bucket:"deployment-ease",
+                Bucket:process.env.BUCKET_NAME as string,
                 Key
             }).createReadStream().pipe(fileDestination).on("finish" , ()=>{
-                console.log("downloaded");
+                loadedFiles++;
+                let percent = (loadedFiles / totalFiles) * 100;
+                console.log(`${percent} % download completed`);
+                console.log();
                 resolve("");
             })
         })

@@ -53,3 +53,7 @@ export function generateMessage(message: string , payload:any[] = []){
     "payload" : payload
   }
 }
+
+export default function delay(ms:number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
